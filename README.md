@@ -6,6 +6,8 @@ Application mobile permettant à un professeur particulier de gérer ses groupes
 
 *Élèves, numéros et montants affichés sont des données fictives du jeu d'essai — aucune donnée personnelle réelle n'est exposée.*
 
+[![Télécharger elCarni pour Android](https://img.shields.io/badge/T%C3%A9l%C3%A9charger-elCarni%20pour%20Android-88E788?style=for-the-badge&logo=android&logoColor=black&labelColor=050505)](https://github.com/MakkiAloulou/elCarni/releases/latest/download/elCarni.apk)
+
 ---
 
 ## Sommaire

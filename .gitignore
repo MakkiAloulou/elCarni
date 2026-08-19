@@ -44,3 +44,7 @@ app.*.map.json
 
 # Identifiants Supabase locaux (voir env.example.json) — jamais commités.
 env.json
+
+# Clé de signature Android release
+android/key.properties
+android/app/*.jks
