@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../data/app_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../utils/schedule.dart';
@@ -16,7 +16,7 @@ class SessionTile extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final cancelled = session.status == SessionStatus.cancelled;
     final scheduled = session.status == SessionStatus.scheduled;
-    final summary = MockData.summaryForSession(session.id);
+    final summary = AppRepository.summaryForSession(session.id);
 
     return InkWell(
       onTap: onTap,

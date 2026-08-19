@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../data/app_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 
@@ -32,16 +32,21 @@ class _MoveStudentSheet extends StatefulWidget {
 class _MoveStudentSheetState extends State<_MoveStudentSheet> {
   Group? _target;
 
+  Future<void> _confirm(String targetGroupId) async {
+    await AppRepository.moveStudent(widget.student.id, widget.fromGroupId, targetGroupId);
+    if (mounted) Navigator.of(context).pop(true);
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final currentGroup = MockData.groupById(widget.fromGroupId);
+    final currentGroup = AppRepository.groupById(widget.fromGroupId);
     // Un déplacement reste dans le même niveau — passer de Bac à 3ème
     // n'a pas de sens pédagogique, même si le solde suivrait techniquement.
-    final candidates = MockData.groups
+    final candidates = AppRepository.groups
         .where((g) => g.id != widget.fromGroupId && g.level == currentGroup?.level)
         .toList();
-    final unpaid = MockData.balanceFor(widget.student.id).unpaidSessions;
+    final unpaid = AppRepository.balanceFor(widget.student.id).unpaidSessions;
 
     return SafeArea(
       child: Padding(
@@ -87,12 +92,7 @@ class _MoveStudentSheetState extends State<_MoveStudentSheet> {
             ],
             const SizedBox(height: AppSpacing.lg),
             FilledButton(
-              onPressed: _target == null
-                  ? null
-                  : () {
-                      MockData.moveStudent(widget.student.id, widget.fromGroupId, _target!.id);
-                      Navigator.of(context).pop(true);
-                    },
+              onPressed: _target == null ? null : () => _confirm(_target!.id),
               child: const Text('Confirmer le déplacement'),
             ),
           ],

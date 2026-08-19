@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../data/app_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../utils/schedule.dart';
@@ -28,20 +28,20 @@ class _GroupFormSheetState extends State<_GroupFormSheet> {
   final _formKey = GlobalKey<FormState>();
 
   // Restreint aux niveaux/sections cochés dans Réglages (voir
-  // MockData.taughtLevels/taughtSections) — mais en modification, le
+  // AppRepository.taughtLevels/taughtSections) — mais en modification, le
   // niveau/section déjà en place du groupe reste proposé même s'il n'est
   // plus coché, pour ne pas le faire disparaître sous les pieds du prof.
   // Si rien n'est coché du tout, retombe sur la liste complète plutôt
   // que de bloquer la création de groupe.
   List<Level> get _availableLevels {
-    final taught = MockData.taughtLevels;
+    final taught = AppRepository.taughtLevels;
     final base = taught.isEmpty ? Level.values.toSet() : taught;
     final allowed = {...base, if (widget.editing != null) widget.editing!.level};
     return Level.values.where(allowed.contains).toList();
   }
 
   List<Section> get _availableSections {
-    final taught = MockData.taughtSections;
+    final taught = AppRepository.taughtSections;
     final base = taught.isEmpty ? Section.values.toSet() : taught;
     final allowed = {...base, if (widget.editing?.section != null) widget.editing!.section!};
     return Section.values.where(allowed.contains).toList();
@@ -89,7 +89,7 @@ class _GroupFormSheetState extends State<_GroupFormSheet> {
     if (picked != null) setState(() => _startTime = picked);
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final monthlyPrice =
         double.parse(_priceController.text.replaceAll(',', '.'));
@@ -101,8 +101,8 @@ class _GroupFormSheetState extends State<_GroupFormSheet> {
     if (widget.editing == null) {
       // Pas de numéro saisi à la main : createGroup l'attribue tout
       // seul si un autre groupe du même niveau/section existe déjà —
-      // voir MockData.createGroup.
-      result = MockData.createGroup(
+      // voir AppRepository.createGroup.
+      result = await AppRepository.createGroup(
         level: _level,
         section: _section,
         note: note,
@@ -122,9 +122,9 @@ class _GroupFormSheetState extends State<_GroupFormSheet> {
         startTime: _startTime,
         durationMinutes: _duration,
       );
-      MockData.updateGroup(result);
+      await AppRepository.updateGroup(result);
     }
-    Navigator.of(context).pop(result);
+    if (mounted) Navigator.of(context).pop(result);
   }
 
   @override

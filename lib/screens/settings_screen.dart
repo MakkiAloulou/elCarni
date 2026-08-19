@@ -1,13 +1,16 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-import '../data/mock_data.dart';
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../data/app_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../widgets/section_card.dart';
 import '../widgets/section_header.dart';
 
 /// Réglages prof — pour l'instant juste les niveaux et sections
-/// enseignés (MockData.taughtLevels/taughtSections). Chaque tap
+/// enseignés (AppRepository.taughtLevels/taughtSections). Chaque tap
 /// applique tout de suite, pas de bouton "Enregistrer" : c'est une
 /// préférence, pas un formulaire à valider.
 class SettingsScreen extends StatefulWidget {
@@ -18,8 +21,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  late final Set<Level> _levels = {...MockData.taughtLevels};
-  late final Set<Section> _sections = {...MockData.taughtSections};
+  late final Set<Level> _levels = {...AppRepository.taughtLevels};
+  late final Set<Section> _sections = {...AppRepository.taughtSections};
 
   bool get _needsSection => _levels.any((l) => l.hasSection);
 
@@ -30,12 +33,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
       } else {
         _levels.remove(level);
       }
-      MockData.setTaughtLevels(_levels);
-      // Reflète tout de suite le nettoyage fait côté MockData si plus
+      // Persistance en tâche de fond : setTaughtLevels met déjà à jour
+      // AppRepository.taughtLevels/taughtSections de façon synchrone
+      // avant son premier await, donc les relire juste en dessous est
+      // sûr même sans attendre l'écriture réseau.
+      unawaited(AppRepository.setTaughtLevels(_levels));
+      // Reflète tout de suite le nettoyage fait côté AppRepository si plus
       // aucun niveau à section n'est coché.
       _sections
         ..clear()
-        ..addAll(MockData.taughtSections);
+        ..addAll(AppRepository.taughtSections);
     });
   }
 
@@ -46,8 +53,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
       } else {
         _sections.remove(section);
       }
-      MockData.setTaughtSections(_sections);
+      unawaited(AppRepository.setTaughtSections(_sections));
     });
+  }
+
+  Future<void> _signOut() async {
+    // Vide le cache avant de couper la session : AuthGate va démonter
+    // RootScaffold dès que onAuthStateChange émet, mais autant ne pas
+    // laisser les données de ce prof en mémoire entre-temps.
+    AppRepository.reset();
+    await Supabase.instance.client.auth.signOut();
+  }
+
+  Future<void> _deleteAllData() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Supprimer toutes les données ?'),
+        content: const Text(
+          'Tous les groupes, élèves, séances, présences et paiements seront '
+          'définitivement supprimés. Ton compte reste actif, mais cette '
+          'action est irréversible.',
+        ),
+        actionsAlignment: MainAxisAlignment.end,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Annuler'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(64, 40),
+              backgroundColor: AppStatus.due,
+            ),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Tout supprimer'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await AppRepository.deleteAllData();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Toutes les données ont été supprimées.')),
+      );
+      setState(() {});
+    }
   }
 
   @override
@@ -117,6 +169,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ],
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FilledButton.icon(
+              onPressed: _deleteAllData,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.accent,
+                foregroundColor: AppColors.ink,
+              ),
+              icon: const Icon(Icons.delete_forever_outlined, size: 18),
+              label: const Text('Supprimer toutes les données'),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            FilledButton.icon(
+              onPressed: _signOut,
+              icon: const Icon(Icons.logout, size: 18),
+              label: const Text('Se déconnecter'),
+            ),
+          ],
+        ),
       ),
     );
   }

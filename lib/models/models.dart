@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// `scheduled` = programmée, pas encore tenue (aucune présence encore
 /// possible). `done` = tenue, présences saisies. Le passage
 /// scheduled → done se fait en enregistrant les présences (voir
-/// MockData.setAttendance / AttendanceScreen).
+/// AppRepository.setAttendance / AttendanceScreen).
 enum SessionStatus { scheduled, done, cancelled }
 
 enum AttendanceStatus { present, absentJustified, absentUnjustified }
@@ -62,7 +62,7 @@ enum Section {
 ///
 /// [groupNumber] distingue deux groupes de même niveau/section (un
 /// prof peut avoir "Bac Maths 1" et "Bac Maths 2" en parallèle) —
-/// jamais saisi à la main, voir [MockData.createGroup]. [note] est
+/// jamais saisi à la main, voir [AppRepository.createGroup]. [note] est
 /// l'inverse : un surnom libre et purement optionnel que le prof se
 /// donne pour reconnaître le groupe (ex. "Les terminales du soir"),
 /// sans valeur d'identification.
@@ -137,10 +137,10 @@ class Group {
 ///
 /// [suspendedAt] met l'élève en pause (absence prolongée...) sans le
 /// désinscrire : il reste dans son groupe (voir
-/// [MockData.studentsForGroup], qui le montre en bas de liste) et son
+/// [AppRepository.studentsForGroup], qui le montre en bas de liste) et son
 /// solde continue d'exister — contrairement à une suppression,
-/// réversible via [MockData.reactivateStudent]. [isFree] dispense
-/// l'élève de tout paiement (voir [MockData.balanceFor]).
+/// réversible via [AppRepository.reactivateStudent]. [isFree] dispense
+/// l'élève de tout paiement (voir [AppRepository.balanceFor]).
 class Student {
   const Student({
     required this.id,
@@ -367,7 +367,7 @@ class StudentBalance {
 
   /// Vrai dès qu'une séance du cycle en cours reste impayée — pas
   /// besoin d'attendre que le groupe boucle les 4 séances, voir
-  /// [MockData.unpaidCycles]. Toujours faux pour un élève [isFree].
+  /// [AppRepository.unpaidCycles]. Toujours faux pour un élève [isFree].
   final bool isDue;
 
   /// Copié de [Student.isFree] pour que l'UI (BalancePill) n'ait pas à

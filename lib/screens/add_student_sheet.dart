@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../data/app_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 
@@ -27,7 +27,7 @@ class _AddStudentSheet extends StatefulWidget {
 }
 
 class _AddStudentSheetState extends State<_AddStudentSheet> {
-  late final Group _group = MockData.groupById(widget.groupId)!;
+  late final Group _group = AppRepository.groupById(widget.groupId)!;
 
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -53,12 +53,12 @@ class _AddStudentSheetState extends State<_AddStudentSheet> {
     super.dispose();
   }
 
-  void _createAndEnroll() {
+  Future<void> _createAndEnroll() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) return;
     final classNumberText = _classNumberController.text.trim();
     final school = _schoolController.text.trim();
-    final student = MockData.createStudent(
+    final student = await AppRepository.createStudent(
       name: name,
       phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
       parentPhone:
@@ -69,8 +69,8 @@ class _AddStudentSheetState extends State<_AddStudentSheet> {
       school: school.isEmpty ? null : school,
       isFree: _isFree,
     );
-    MockData.enrollStudent(student.id, widget.groupId);
-    Navigator.of(context).pop(true);
+    await AppRepository.enrollStudent(student.id, widget.groupId);
+    if (mounted) Navigator.of(context).pop(true);
   }
 
   @override

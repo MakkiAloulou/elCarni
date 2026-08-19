@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../data/app_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 
@@ -8,13 +8,13 @@ import '../theme/app_theme.dart';
 /// une feuille de sélection. Utilisé par toute action rapide qui a
 /// besoin d'un groupe sans venir d'une fiche de groupe déjà ouverte.
 Future<Group?> pickGroup(BuildContext context, {required String title}) async {
-  if (MockData.groups.isEmpty) {
+  if (AppRepository.groups.isEmpty) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Crée d\'abord un groupe')),
     );
     return null;
   }
-  if (MockData.groups.length == 1) return MockData.groups.first;
+  if (AppRepository.groups.length == 1) return AppRepository.groups.first;
   return showModalBottomSheet<Group>(
     context: context,
     builder: (context) => SafeArea(
@@ -28,7 +28,7 @@ Future<Group?> pickGroup(BuildContext context, {required String title}) async {
               child: Text(title, style: Theme.of(context).textTheme.titleLarge),
             ),
           ),
-          for (final group in MockData.groups)
+          for (final group in AppRepository.groups)
             ListTile(
               title: Text(group.displayName),
               onTap: () => Navigator.of(context).pop(group),

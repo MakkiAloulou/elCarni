@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../data/app_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../widgets/group_card.dart';
@@ -26,25 +26,25 @@ class _GroupsScreenState extends State<GroupsScreen> {
   // proposé, même s'il n'est plus coché, pour ne jamais rendre un
   // groupe existant introuvable via le filtre.
   List<Level> get _availableLevels {
-    final taught = MockData.taughtLevels;
+    final taught = AppRepository.taughtLevels;
     final base = taught.isEmpty ? Level.values.toSet() : taught;
-    final allowed = {...base, ...MockData.groups.map((g) => g.level)};
+    final allowed = {...base, ...AppRepository.groups.map((g) => g.level)};
     return Level.values.where(allowed.contains).toList();
   }
 
   List<Section> get _availableSections {
-    final taught = MockData.taughtSections;
+    final taught = AppRepository.taughtSections;
     final base = taught.isEmpty ? Section.values.toSet() : taught;
     final allowed = {
       ...base,
-      ...MockData.groups.map((g) => g.section).whereType<Section>(),
+      ...AppRepository.groups.map((g) => g.section).whereType<Section>(),
     };
     return Section.values.where(allowed.contains).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final groups = MockData.groups.where((group) {
+    final groups = AppRepository.groups.where((group) {
       if (_levelFilter != null && group.level != _levelFilter) return false;
       if (_sectionFilter != null && group.section != _sectionFilter) return false;
       return true;
@@ -105,9 +105,9 @@ class _GroupsScreenState extends State<GroupsScreen> {
                     separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
                     itemBuilder: (context, index) {
                       final group = groups[index];
-                      final students = MockData.studentsForGroup(group.id);
+                      final students = AppRepository.studentsForGroup(group.id);
                       final dueCount = students
-                          .where((s) => MockData.balanceFor(s.id).isDue)
+                          .where((s) => AppRepository.balanceFor(s.id).isDue)
                           .length;
                       return GroupCard(
                         group: group,

@@ -31,5 +31,10 @@ linter:
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
     # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
 
+    # AppRepository's mutations hit Supabase over the network — a call
+    # left un-awaited pops a sheet / rebuilds a screen before the local
+    # cache actually reflects the write, showing stale data.
+    unawaited_futures: true
+
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

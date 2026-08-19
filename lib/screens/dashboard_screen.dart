@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../data/app_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../utils/schedule.dart';
@@ -102,9 +102,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final watchlist = MockData.studentsWithDuePayments();
+    final watchlist = AppRepository.studentsWithDuePayments();
 
-    final upcoming = [...MockData.groups]
+    final upcoming = [...AppRepository.groups]
       ..sort((a, b) => nextOccurrence(a.weekday, a.startTime)
           .compareTo(nextOccurrence(b.weekday, b.startTime)));
 
@@ -143,9 +143,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         children: [
           _StatsOverview(
-            groupCount: MockData.groups.length,
+            groupCount: AppRepository.groups.length,
             unpaidStudentCount: watchlist.length,
-            sessionsThisWeek: MockData.sessionsThisWeekCount(),
+            sessionsThisWeek: AppRepository.sessionsThisWeekCount(),
           ),
           if (isEmpty) ...[
             const SizedBox(height: AppSpacing.xxl),

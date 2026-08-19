@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../data/app_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 
@@ -27,7 +27,7 @@ class _EditStudentSheet extends StatefulWidget {
 }
 
 class _EditStudentSheetState extends State<_EditStudentSheet> {
-  late final Group? _group = MockData.groupsForStudent(widget.student.id).firstOrNull;
+  late final Group? _group = AppRepository.groupsForStudent(widget.student.id).firstOrNull;
   late final Level? _level = _group?.level ?? widget.student.classLevel;
 
   late final _nameController = TextEditingController(text: widget.student.name);
@@ -50,7 +50,7 @@ class _EditStudentSheetState extends State<_EditStudentSheet> {
     super.dispose();
   }
 
-  void _save() {
+  Future<void> _save() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) return;
     final phone = _phoneController.text.trim();
@@ -74,8 +74,8 @@ class _EditStudentSheetState extends State<_EditStudentSheet> {
       clearSchool: school.isEmpty,
       isFree: _isFree,
     );
-    MockData.updateStudent(updated);
-    Navigator.of(context).pop(true);
+    await AppRepository.updateStudent(updated);
+    if (mounted) Navigator.of(context).pop(true);
   }
 
   @override

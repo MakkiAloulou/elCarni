@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../data/mock_data.dart';
+import '../data/app_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../utils/schedule.dart';
@@ -28,7 +28,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   }
 
   Future<void> _editStudent() async {
-    final student = MockData.studentById(widget.studentId)!;
+    final student = AppRepository.studentById(widget.studentId)!;
     final changed = await showEditStudentSheet(context, student: student);
     if (changed == true) setState(() {});
   }
@@ -46,15 +46,15 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final student = MockData.studentById(widget.studentId);
+    final student = AppRepository.studentById(widget.studentId);
     if (student == null) {
       return const Scaffold(body: Center(child: Text('Élève introuvable')));
     }
 
-    final groups = MockData.groupsForStudent(widget.studentId);
-    final balance = MockData.balanceFor(widget.studentId);
-    final history = MockData.attendanceHistoryFor(widget.studentId).reversed.toList();
-    final payments = MockData.paymentsFor(widget.studentId);
+    final groups = AppRepository.groupsForStudent(widget.studentId);
+    final balance = AppRepository.balanceFor(widget.studentId);
+    final history = AppRepository.attendanceHistoryFor(widget.studentId).reversed.toList();
+    final payments = AppRepository.paymentsFor(widget.studentId);
 
     return Scaffold(
       appBar: AppBar(
@@ -274,7 +274,7 @@ class _AttendanceHistoryTile extends StatelessWidget {
       leading: Icon(icon, color: color),
       title: Text(formatShortDate(entry.date)),
       subtitle: Text(
-        '${MockData.groupById(entry.groupId)?.displayName ?? ''} · $statusLabel',
+        '${AppRepository.groupById(entry.groupId)?.displayName ?? ''} · $statusLabel',
       ),
     );
   }

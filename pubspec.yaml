@@ -40,6 +40,13 @@ dependencies:
   # ou son parent depuis sa fiche.
   url_launcher: ^6.3.1
 
+  # Backend Supabase (Postgres + Auth + RLS) — voir supabase/migrations
+  # et lib/config/supabase_config.dart. La connexion Google passe par le
+  # flux OAuth redirect de Supabase (signInWithOAuth), pas par un SDK
+  # Google natif : un seul client Google Cloud à configurer, entièrement
+  # côté dashboard Supabase — voir lib/auth/sign_in_screen.dart.
+  supabase_flutter: ^2.8.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -117,3 +124,12 @@ flutter:
           weight: 600
         - asset: assets/fonts/Poppins-Bold.ttf
           weight: 700
+
+# app_links 6.4.1 (tiré transitivement par supabase_flutter, pour le
+# retour du login Google) déclare son propre buildscript Android Gradle
+# 8.6.1, ce qui casse l'injection de l'extension `flutter` dans son
+# android/build.gradle sous Flutter 3.24. Épinglé à 6.2.0, la version la
+# plus basse acceptée par supabase_flutter, en attendant une mise à jour
+# du SDK Flutter.
+dependency_overrides:
+  app_links: 6.2.0

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../data/app_repository.dart';
 import '../theme/app_theme.dart';
 
 /// Un paiement couvre toujours un ou plusieurs cycles ENTIERS — jamais
@@ -26,15 +26,15 @@ class _RecordPaymentSheet extends StatefulWidget {
 }
 
 class _RecordPaymentSheetState extends State<_RecordPaymentSheet> {
-  late final _cycles = MockData.unpaidCycles(widget.studentId);
+  late final _cycles = AppRepository.unpaidCycles(widget.studentId);
   var _cycleCount = 1;
 
   int get _sessions => _cycles.take(_cycleCount).fold<int>(0, (s, c) => s + c.sessions);
   double get _amount => _cycles.take(_cycleCount).fold<double>(0, (s, c) => s + c.amount);
 
-  void _confirm() {
-    MockData.recordCyclePayment(widget.studentId, cycleCount: _cycleCount);
-    Navigator.of(context).pop(true);
+  Future<void> _confirm() async {
+    await AppRepository.recordCyclePayment(widget.studentId, cycleCount: _cycleCount);
+    if (mounted) Navigator.of(context).pop(true);
   }
 
   @override

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../data/app_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../utils/schedule.dart';
@@ -13,7 +13,7 @@ import 'schedule_session_sheet.dart';
 /// contrainte unique `(session_id, student_id)` rend l'upsert
 /// idempotent dans les deux cas (README §9.2). Enregistrer les
 /// présences d'une séance programmée la fait passer à "done"
-/// (voir MockData.markSessionDone).
+/// (voir AppRepository.markSessionDone).
 class AttendanceScreen extends StatefulWidget {
   const AttendanceScreen({super.key, required this.session});
 
@@ -25,10 +25,10 @@ class AttendanceScreen extends StatefulWidget {
 
 class _AttendanceScreenState extends State<AttendanceScreen> {
   late Session _session = widget.session;
-  late final Group _group = MockData.groupById(_session.groupId)!;
-  late final List<Student> _students = MockData.studentsForGroup(_group.id);
+  late final Group _group = AppRepository.groupById(_session.groupId)!;
+  late final List<Student> _students = AppRepository.studentsForGroup(_group.id);
   late final Map<String, AttendanceStatus> _attendance =
-      MockData.attendanceForSession(_session.id);
+      AppRepository.attendanceForSession(_session.id);
 
   bool get _wasScheduled => _session.status == SessionStatus.scheduled;
 
@@ -43,14 +43,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     }
   }
 
-  void _save() {
+  Future<void> _save() async {
     for (final entry in _attendance.entries) {
-      MockData.setAttendance(_session.id, entry.key, entry.value);
+      await AppRepository.setAttendance(_session.id, entry.key, entry.value);
     }
     if (_wasScheduled) {
-      MockData.markSessionDone(_session.id);
+      await AppRepository.markSessionDone(_session.id);
     }
-    Navigator.of(context).pop(true);
+    if (mounted) Navigator.of(context).pop(true);
   }
 
   Future<void> _editSession() async {
@@ -79,7 +79,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       ),
     );
     if (confirmed == true) {
-      MockData.cancelSession(_session.id);
+      await AppRepository.cancelSession(_session.id);
       if (mounted) Navigator.of(context).pop(true);
     }
   }

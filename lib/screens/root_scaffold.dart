@@ -19,7 +19,7 @@ class _RootScaffoldState extends State<RootScaffold> {
 
   // Volontairement PAS const : IndexedStack ne rebuild un enfant que si
   // son identité de widget change. Avec des instances const partagées,
-  // changer d'onglet ne relit jamais MockData — un ajout fait depuis un
+  // changer d'onglet ne relit jamais AppRepository — un ajout fait depuis un
   // autre onglet (ex. programmer une séance depuis le tableau de bord)
   // restait invisible dans l'onglet Séances tant qu'on ne le quittait
   // pas et n'y revenait pas autrement. Des instances fraîches à chaque

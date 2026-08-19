@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../data/app_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../utils/schedule.dart';
@@ -27,7 +27,7 @@ class GroupDetailScreen extends StatefulWidget {
 class _GroupDetailScreenState extends State<GroupDetailScreen> {
   late String _groupId = widget.group.id;
 
-  Group get _group => MockData.groupById(_groupId)!;
+  Group get _group => AppRepository.groupById(_groupId)!;
 
   Future<void> _editGroup() async {
     final updated = await showGroupFormSheet(context, editing: _group);
@@ -58,7 +58,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
   }
 
   Future<void> _deleteGroup() async {
-    final students = MockData.studentsForGroup(_groupId);
+    final students = AppRepository.studentsForGroup(_groupId);
     if (students.isNotEmpty) {
       final plural = students.length > 1;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -92,8 +92,17 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
       ),
     );
     if (confirmed == true) {
-      MockData.deleteGroup(_groupId);
-      if (mounted) Navigator.of(context).pop(true);
+      final deleted = await AppRepository.deleteGroup(_groupId);
+      if (!mounted) return;
+      if (deleted) {
+        Navigator.of(context).pop(true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ce groupe a déjà des séances tenues — il ne peut plus être supprimé.'),
+          ),
+        );
+      }
     }
   }
 
@@ -110,7 +119,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
   Future<void> _studentActions(Student student) async {
     // Suppression proposée seulement si l'élève est à jour — même règle
     // que deleteStudent, qui la refuserait de toute façon silencieusement.
-    final canDelete = MockData.balanceFor(student.id).unpaidSessions == 0;
+    final canDelete = AppRepository.balanceFor(student.id).unpaidSessions == 0;
     final action = await showModalBottomSheet<String>(
       context: context,
       builder: (context) => SafeArea(
@@ -148,11 +157,11 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
             await showMoveStudentSheet(context, student: student, fromGroupId: _groupId);
         if (moved == true) setState(() {});
       case 'suspend':
-        MockData.suspendStudent(student.id);
-        setState(() {});
+        await AppRepository.suspendStudent(student.id);
+        if (mounted) setState(() {});
       case 'reactivate':
-        MockData.reactivateStudent(student.id);
-        setState(() {});
+        await AppRepository.reactivateStudent(student.id);
+        if (mounted) setState(() {});
       case 'delete':
         final confirmed = await showDialog<bool>(
           context: context,
@@ -174,7 +183,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
           ),
         );
         if (confirmed == true) {
-          MockData.deleteStudent(student.id);
+          await AppRepository.deleteStudent(student.id);
           if (mounted) setState(() {});
         }
     }
@@ -184,8 +193,8 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final group = _group;
-    final students = MockData.studentsForGroup(group.id);
-    final sessions = MockData.sessionsForGroup(group.id);
+    final students = AppRepository.studentsForGroup(group.id);
+    final sessions = AppRepository.sessionsForGroup(group.id);
     final lastSessionDate = sessions.isEmpty
         ? null
         : sessions.map((s) => s.date).reduce((a, b) => a.isAfter(b) ? a : b);
@@ -304,7 +313,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                           ),
                         StudentRow(
                           student: students[i],
-                          balance: MockData.balanceFor(students[i].id),
+                          balance: AppRepository.balanceFor(students[i].id),
                           onTap: () => _openStudent(students[i]),
                           onMenuTap: () => _studentActions(students[i]),
                         ),

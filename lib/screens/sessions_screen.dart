@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../data/app_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../utils/schedule.dart';
@@ -36,7 +36,7 @@ class _SessionsScreenState extends State<SessionsScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final scheduled = MockData.scheduledSessions();
+    final scheduled = AppRepository.scheduledSessions();
 
     // Déjà trié chronologiquement par scheduledSessions() : les séances
     // du même jour se retrouvent forcément consécutives, il suffit de
@@ -111,7 +111,7 @@ class _ScheduledSessionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final group = MockData.groupById(session.groupId);
+    final group = AppRepository.groupById(session.groupId);
 
     return Material(
       color: AppColors.surface,

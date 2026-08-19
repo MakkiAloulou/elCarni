@@ -24,7 +24,7 @@ class StudentRow extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final suspended = student.isSuspended;
     // Rangée assourdie plutôt que masquée : un suspendu reste visible
-    // (en bas de liste, voir MockData.studentsForGroup) mais démoté
+    // (en bas de liste, voir AppRepository.studentsForGroup) mais démoté
     // visuellement. Le solde continue d'être affiché normalement —
     // suspendre n'efface pas une dette déjà due.
     return Opacity(
