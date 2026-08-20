@@ -41,11 +41,14 @@ dependencies:
   url_launcher: ^6.3.1
 
   # Backend Supabase (Postgres + Auth + RLS) — voir supabase/migrations
-  # et lib/config/supabase_config.dart. La connexion Google passe par le
-  # flux OAuth redirect de Supabase (signInWithOAuth), pas par un SDK
-  # Google natif : un seul client Google Cloud à configurer, entièrement
-  # côté dashboard Supabase — voir lib/auth/sign_in_screen.dart.
+  # et lib/config/supabase_config.dart.
   supabase_flutter: ^2.8.0
+
+  # Connexion Google native (popup système, compte déjà sur l'appareil) —
+  # signInWithOAuth (navigateur externe) bloquait certains clients
+  # derrière les écrans de première utilisation de Chrome. Voir
+  # lib/auth/sign_in_screen.dart.
+  google_sign_in: ^6.2.2
 
 dev_dependencies:
   flutter_test:

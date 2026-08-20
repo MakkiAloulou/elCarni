@@ -58,6 +58,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _signOut() async {
+    // Réglages est une route poussée par-dessus RootScaffold : sans ce
+    // popUntil, elle reste affichée à l'écran même une fois qu'AuthGate
+    // bascule sur SignInScreen en dessous (la route poussée cache le
+    // changement) — il fallait sinon appuyer sur retour pour la voir.
+    Navigator.of(context).popUntil((route) => route.isFirst);
     // Vide le cache avant de couper la session : AuthGate va démonter
     // RootScaffold dès que onAuthStateChange émet, mais autant ne pas
     // laisser les données de ce prof en mémoire entre-temps.

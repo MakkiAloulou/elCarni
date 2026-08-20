@@ -10,12 +10,15 @@ class SupabaseConfig {
   static const String url = String.fromEnvironment('SUPABASE_URL');
   static const String anonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 
-  /// Scheme+host déclarés dans AndroidManifest.xml / Info.plist — c'est
-  /// là que le navigateur ramène l'utilisateur après le login Google.
-  /// Le Client ID/Secret Google, eux, ne sont jamais dans l'app : ils
-  /// vivent uniquement dans le dashboard Supabase (Auth > Providers >
-  /// Google). Voir lib/auth/sign_in_screen.dart.
-  static const String authRedirectUrl = 'com.elcarni.elcarni://login-callback';
+  /// Client ID OAuth "Web application" (Google Cloud Console) — passé à
+  /// GoogleSignIn(serverClientId: ...) même sur Android, pour que Google
+  /// renvoie un idToken vérifiable par Supabase. Le client "Android"
+  /// (package + empreinte SHA-1) n'a besoin d'exister dans Google Cloud
+  /// que pour que Google accepte de délivrer ce token à cette app —
+  /// aucun de ses identifiants n'est utilisé côté code. Voir
+  /// lib/auth/sign_in_screen.dart.
+  static const String googleWebClientId =
+      String.fromEnvironment('GOOGLE_WEB_CLIENT_ID');
 
   /// Numéro affiché sur l'écran d'attente (PendingScreen) pour qu'un
   /// compte 'new'/'renew' puisse joindre directement le créateur de
